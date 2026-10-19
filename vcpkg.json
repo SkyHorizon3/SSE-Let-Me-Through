@@ -1,0 +1,9 @@
+{
+  "name": "example",
+  "version-string": "1.0.0",
+  "description": "Example CLib NG project",
+  "dependencies": [
+    "commonlibsse-ng"
+  ],
+  "builtin-baseline": "eb2d3a3279fd019cb7733072d86900d0ad2a1aef"
+}
