@@ -3,6 +3,7 @@
 class Manager : public REX::Singleton<Manager>
 {
 public:
+	void loadINI();
 	void update(const RE::Actor* player);
 
 private:
@@ -15,4 +16,5 @@ private:
 	float m_bumpCounter{ 0.0f };
 	std::vector<RE::RefHandle> m_resetHandles;
 	float m_resetCounter{ 0.0f };
+	float m_bumpTimeLimit{ 2.0f };
 };

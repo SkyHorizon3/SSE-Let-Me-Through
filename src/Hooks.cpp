@@ -37,19 +37,15 @@ namespace Hooks
 
 			Manager::GetSingleton()->update(controllingActor.get());
 		};
-		static inline REL::Relocation<decltype(thunk)> func;
 
-		static void Install()
-		{
-			REL::Relocation<std::uintptr_t> Vtbl{ RE::VTABLE_PlayerCharacter[0] };
-			func = Vtbl.write_vfunc(0xAD, &thunk);
-		}
+		static inline REL::Relocation<decltype(thunk)> func;
+		static inline std::size_t                      idx = 0xAD;
 	};
 
 	void Install()
 	{
 		//SKSE::AllocTrampoline(14);
 		//HandleBumpedCharacter::Install();
-		PlayerUpdate::Install();
+		stl::write_vfunc<RE::PlayerCharacter, PlayerUpdate>();
 	}
 }

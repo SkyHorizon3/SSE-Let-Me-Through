@@ -1,4 +1,5 @@
 ﻿#include "Hooks.h"
+#include "Manager.h"
 
 #define DLLEXPORT __declspec(dllexport)
 
@@ -7,7 +8,7 @@ SKSE_PLUGIN_VERSION = []()
 		SKSE::PluginVersionData v;
 		v.PluginName(Plugin::NAME);
 		v.PluginVersion(Plugin::VERSION);
-		v.AuthorName("SkyHorizon"sv);
+		v.AuthorName("SkyHorizon");
 		v.UsesAddressLibrary();
 		v.UsesNoStructs();
 		return v;
@@ -26,7 +27,7 @@ SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* skse)
 {
 	SKSE::Init(skse, true);
 
-	spdlog::set_pattern("[%H:%M:%S:%e] [%l] %v"s);
+	spdlog::set_pattern("[%H:%M:%S:%e] [%l] %v");
 
 #ifndef NDEBUG
 	spdlog::set_level(spdlog::level::trace);
@@ -38,6 +39,7 @@ SKSE_PLUGIN_LOAD(const SKSE::LoadInterface* skse)
 
 	SKSE::log::info("Game version: {}", skse->RuntimeVersion());
 
+	Manager::GetSingleton()->loadINI();
 	Hooks::Install();
 
 	return true;

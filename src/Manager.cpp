@@ -1,14 +1,28 @@
 #include "Manager.h"
 
+void Manager::loadINI()
+{
+	const auto path = std::format("Data/SKSE/Plugins/{}.ini", Plugin::NAME);
+
+	CSimpleIniA ini;
+	ini.SetUnicode();
+	ini.LoadFile(path.c_str());
+
+	constexpr const char* sectionGeneral = "General";
+	m_bumpTimeLimit = static_cast<float>(ini.GetDoubleValue(sectionGeneral, "fBumpTimeLimit"));
+}
+
 void Manager::update(const RE::Actor* player)
 {
+	constexpr float RESET_LIMIT = 2.0f;
+
 	const auto timer = RE::BSTimer::GetSingleton();
 	const auto realTime = timer ? timer->realTimeDelta : 0.0f;
 	if (realTime <= 0.0f)
 		return;
 
 	m_resetCounter += realTime;
-	if (m_resetCounter >= 2.0f)
+	if (m_resetCounter >= RESET_LIMIT)
 	{
 		end(player);
 		m_resetCounter = 0.0f;
@@ -35,7 +49,7 @@ void Manager::update(const RE::Actor* player)
 	}
 
 	m_bumpCounter += realTime;
-	if (m_bumpCounter >= 2.0f)
+	if (m_bumpCounter >= m_bumpTimeLimit)
 	{
 		const auto changed = changeCollisionFlag(target, true);
 		if (changed && m_currentTarget != 0)
@@ -50,18 +64,21 @@ void Manager::update(const RE::Actor* player)
 
 void Manager::end(const RE::Actor* player)
 {
+	constexpr float DISTANCE_MIN = 50.0f;
+
 	for (auto it = m_resetHandles.begin(); it != m_resetHandles.end();)
 	{
 		const auto entry = *it;
 		RE::TESObjectREFRPtr actor;
 		if (!RE::LookupReferenceByHandle(entry, actor))
 		{
-			SKSE::log::error("Unable to reset: {:08X}", entry);
+			// non persistent npcs... Should not exist normally
+			SKSE::log::warn("Unable to reset: {:08X}", entry);
 			it = m_resetHandles.erase(it);
 			continue;
 		}
 
-		if (player->GetDistance(actor.get()) >= 50.0f)
+		if (player->GetDistance(actor.get()) >= DISTANCE_MIN)
 		{
 			changeCollisionFlag(actor, false);
 			it = m_resetHandles.erase(it);
